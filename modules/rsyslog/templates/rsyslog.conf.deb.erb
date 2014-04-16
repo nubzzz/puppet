@@ -1,0 +1,83 @@
+# managed by puppet - /etc/rsyslog.conf
+
+#################
+#### MODULES ####
+#################
+
+$ModLoad imuxsock # provides support for local system logging
+$ModLoad imklog   # provides kernel logging support
+
+<% if @udp_listen != 'false' -%>
+$ModLoad imudp
+$UDPServerRun <%= @udp_listen %>
+<% end %>
+
+<% if @tcp_listen != 'false' -%>
+$ModLoad imtcp
+$InputTCPServerRun <%= @tcp_listen %>
+<% end %>
+
+
+###########################
+#### GLOBAL DIRECTIVES ####
+###########################
+$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
+$FileOwner root
+$FileGroup adm
+$FileCreateMode 0640
+$DirCreateMode 0755
+$Umask 0022
+
+$WorkDirectory /var/spool/rsyslog
+$IncludeConfig /etc/rsyslog.d/*.conf
+
+###############
+#### RULES ####
+###############
+
+<% if @extra_rules.kind_of? Array and @extra_rules.count > 0 -%>
+<% @extra_rules.each do |this_rule| -%>
+<%= this_rule %>
+<% end -%>
+<% end %>
+
+auth,authpriv.*			/var/log/auth.log
+*.*;auth,authpriv.none		-/var/log/syslog
+#cron.*				/var/log/cron.log
+daemon.*			-/var/log/daemon.log
+kern.*				-/var/log/kern.log
+lpr.*				-/var/log/lpr.log
+mail.*				-/var/log/mail.log
+user.*				-/var/log/user.log
+mail.info			-/var/log/mail.info
+mail.warn			-/var/log/mail.warn
+mail.err			/var/log/mail.err
+
+news.crit			/var/log/news/news.crit
+news.err			/var/log/news/news.err
+news.notice			-/var/log/news/news.notice
+
+*.=debug;\
+	auth,authpriv.none;\
+	news.none;mail.none	-/var/log/debug
+*.=info;*.=notice;*.=warn;\
+	auth,authpriv.none;\
+	cron,daemon.none;\
+	mail,news.none		-/var/log/messages
+
+*.emerg				:omusrmsg:*
+
+daemon.*;mail.*;\
+	news.err;\
+	*.=debug;*.=info;\
+	*.=notice;*.=warn	|/dev/xconsole
+
+<% if @loghost != '' %>
+<% if @tcp_listen != 'false' -%>
+*.*	@@<%= @loghost -%>:<%= @tcp_listen %>
+<% end -%>
+<% if @udp_listen != 'false' -%>
+*.*	<%= @loghost -%>:<%= @udp_listen %>
+<% end -%>
+<% end -%>
+

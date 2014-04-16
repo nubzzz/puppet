@@ -1,0 +1,10 @@
+[<%= repo_name %>]
+name=<%= repo_name %>
+baseurl=<%= protocol %>://<%= repo_server %>/<%= suffix %>
+<% if enabled -%>
+enabled=1
+<% end -%>
+<% if gpg_signed -%>
+gpgcheck=1
+gpgkey=<%= protocol %>://<%= repo_server %>/<%= suffix %>/<%= gpg_key_name %>
+<% end -%>

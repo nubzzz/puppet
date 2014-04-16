@@ -1,0 +1,27 @@
+<% if https_toggle %>
+<VirtualHost *:443>
+<% else %>
+<VirtualHost *:80>
+<% end %>
+    ServerAdmin <%= server_admin %>
+    DocumentRoot <%= document_root %>
+    ServerName <%= server_name %>
+    ServerAlias <%= aliases %>
+    ErrorLog /var/log/httpd/<%= errorlog_name %>
+    CustomLog /var/log/httpd/<%= accesslog_name %> combined
+
+    <Directory "<%= document_root %>">
+        Options Indexes FollowSymLinks
+        Order allow,deny
+        Allow from all
+        AllowOverride None
+    </Directory>
+    
+    <% if https_toggle %>
+    SSLEngine on
+    SSLCertificateFile /etc/pki/wellspring/software/star_wellspringsoftware_net.crt
+    SSLCACertificateFile /etc/pki/wellspring/software/DigiCertCA.crt
+    SSLCertificateKeyFile /etc/pki/wellspring/software/star_wellspringsoftware_net.key
+    <% end %>
+</VirtualHost>
+

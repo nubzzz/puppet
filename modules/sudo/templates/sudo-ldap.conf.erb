@@ -1,0 +1,13 @@
+# /etc/sudo-ldap.conf
+# managed by puppet
+BASE	<%= @basedn %>
+URI <%= @ldap_uri.join(' ') %>
+BINDDN	<%= @ldap_binduser %>
+BINDPW	<%= @ldap_bindpass %>
+TLS_CACERTFILE	<%= @tls_cacertfile %>
+TLS_CHECKPEER	<%= @tls_reqcert %>
+TIMELIMIT	15
+TIMEOUT		20
+SUDOERS_BASE	<%= @sudobase %>
+SSL start_tls
+
